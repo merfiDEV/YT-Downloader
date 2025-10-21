@@ -141,6 +141,7 @@ def download_video(url, format_id, save_path):
         ydl.download([url])
 
 def main():
+    console.clear()
     console.print("[bold cyan]███████████████\n§YouTube Downloader§\n███████████████[/bold cyan]")
     config = load_config()
     save_path = get_save_path(config)
