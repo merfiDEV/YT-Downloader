@@ -51,8 +51,39 @@ def choose_format(formats):
                     filtered_formats[height][fps] = f
     
     if not filtered_formats:
-        console.print("[bold red]Не найдено подходящих форматов (480p, 720p, 1080p MP4).[/bold red]")
-        return None
+        console.print("[bold yellow]Предпочтительные форматы (480p, 720p, 1080p MP4) не найдены. Показываю все доступные форматы:[/bold yellow]")
+        alternative_options = []
+        for fmt in formats:
+            ext = fmt.get('ext', 'N/A')
+            height = fmt.get('height', 'N/A')
+            fps = fmt.get('fps', 'N/A')
+            vcodec = fmt.get('vcodec', 'N/A')
+            acodec = fmt.get('acodec', 'N/A')
+            filesize_bytes = fmt.get('filesize')
+            filesize_str = "N/A"
+            if filesize_bytes:
+                filesize_mb = filesize_bytes / (1024 * 1024)
+                filesize_str = f"{filesize_mb:.2f}MB"
+
+            display_label = f"{ext} | {height}p @ {fps}fps | V:{vcodec} A:{acodec} | {filesize_str}"
+            alternative_options.append((display_label, fmt['format_id']))
+
+        if not alternative_options:
+            console.print("[bold red]Не найдено ни одного доступного формата для скачивания.[/bold red]")
+            return None
+
+        for i, (label, _) in enumerate(alternative_options, 1):
+            console.print(f"[cyan]{i}[/cyan]: {label}")
+
+        while True:
+            try:
+                choice = int(Prompt.ask("[bold cyan]Введите номер желаемого формата[/bold cyan]"))
+                if 1 <= choice <= len(alternative_options):
+                    return alternative_options[choice - 1] # Return (label, format_id)
+                else:
+                    console.print("[bold red]Неверный номер. Пожалуйста, выберите из списка.[/bold red]")
+            except ValueError:
+                console.print("[bold red]Пожалуйста, введите число.[/bold red]")
 
     console.print("[bold yellow]Выберите качество видео:[/bold yellow]")
     options = []
@@ -110,10 +141,10 @@ def download_video(url, format_id, save_path):
         ydl.download([url])
 
 def main():
-    console.print("[bold green]--- YouTube Downloader ---[/bold green]")
+    console.print("[bold cyan]███████████████\n§YouTube Downloader§\n███████████████[/bold cyan]")
     config = load_config()
     save_path = get_save_path(config)
-    console.print(f"[cyan]Видео будут сохранены в: {save_path}[/cyan]")
+    console.print("[cyan]Видео будут сохранены в: " + save_path + "[/cyan]")
 
     video_url = Prompt.ask("[bold cyan]Введите или перетащите URL видео с YouTube[/bold cyan]").strip(' "')
     
